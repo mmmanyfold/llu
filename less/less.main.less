@@ -1,0 +1,44 @@
+@font-stack: Helvetica, sans-serif;
+@primary-color: #333;
+
+body {
+  color: @primary-color;
+  background: black;
+}
+
+.text-comp {
+  font: 500% @font-stack;
+  width: 100%;
+  height: 100%;
+}
+
+.jumbotron {
+  color: #f34;
+  background: none;
+}
+
+.gifComp {
+  margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+video, img {
+  display: block;
+  position: fixed;
+  float: left;
+  width: 100vw;
+  height: 100vh;
+  //object-fit: contain;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.clock, .count-up {
+  z-index: 2;
+}
+
+.count-up{
+  color: cyan;
+}
