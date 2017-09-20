@@ -24,6 +24,7 @@
            []
            (GET "http://api.giphy.com/v1/gifs/random"
                 {:params          {:api_key "dc6zaTOxFJmzC"
+                                   :offset  (random-int 1 100)
                                    :tag     "robot+fail"}
                  :handler         #(reset! source-url
                                            (:image_original_url (:data %)))
@@ -57,17 +58,17 @@
            (fn [_ _ _ t]
                (case t
 
-                     10 (refresh! "dolphin" (random-int 1 30))
+                     10 (refresh! "dolphin" (random-int 1 300))
 
                      20 (refresh! "robot+fail" (random-int 1 20))
 
-                     30 (refresh! "gold+magic" (random-int 1 30))
+                     30 (refresh! "gold+magic" (random-int 1 300))
 
-                     40 (refresh! "harambe" (random-int 1 12))
+                     40 (refresh! "random" (random-int 1 100))
 
-                     50 (refresh! "robot+dance" (random-int 1 30))
+                     50 (refresh! "robot+dance" (random-int 1 300))
 
-                     60 (refresh! "robot+fail" (random-int 1 30))
+                     60 (refresh! "robot+fail" (random-int 1 300))
 
                      "default")))
 
@@ -96,7 +97,9 @@
       [:button.btn.btn-danger
        {:on-click (fn []
                       (.play (.querySelector js/document "#audio-el"))
-                      (js/setInterval #(swap! duration inc) 1000))}
+                      (set! js/window.intervalFn
+                            (js/setInterval #(swap! duration inc) 1000)))}
+
        "play"])
 
 (defn pause-btn []
@@ -116,14 +119,13 @@
          [d]]]])
 
 (defn main-component []
-      (let []
-           (r/create-class
-             {:component-did-mount #(refresh! "random+dance" (random-int 1 20))
-              :component-will-unmount #(js/console.log "out")
-              :reagent-render      (fn [] [:div.container
-                                           [gif-comp]
-                                           [audio-comp]
-                                           [text-comp count-up play-btn pause-btn]])})))
+      (r/create-class
+        {:component-did-mount #(refresh! "random+dance" (random-int 1 30))
+         :component-will-unmount #(js/clearInterval js/window.intervalFn)
+         :reagent-render      (fn [] [:div.container
+                                      [gif-comp]
+                                      [audio-comp]
+                                      [text-comp count-up play-btn pause-btn]])}))
 
 
 (defn init []
