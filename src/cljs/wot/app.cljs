@@ -8,9 +8,9 @@
 
 (def source-url (r/atom ""))
 
-(def voice-1 (r/atom "Impact360 music video experiment"))
+(def voice-1 (r/atom ":)x/"))
 
-(defn get-random-int [min max]
+(defn random-int [min max]
       (.floor js/Math (+ min (* (- max min) (.random js/Math)))))
 
 (defmulti refresh!
@@ -32,16 +32,23 @@
 
 (defmethod refresh! :params
            [q & [offset txt]]
-           (let [off (get-random-int 1 12)]
+           (let [off (random-int 1 12)]
                 (if txt (reset! voice-1 txt))
                 (GET "http://api.giphy.com/v1/gifs/search"
                      {:params          {:q       q
                                         :api_key "dc6zaTOxFJmzC"
                                         :limit   1
                                         :offset  (or offset 0)}
-                      :handler         #(reset! source-url
-                                                ;; (:mp4 (:looping (:images (first (:data res))))) ;; video-loop
-                                                (:url (:original (:images (first (:data %))))))
+                      :handler         (fn [{[{images :images}] :data}]
+                                           (reset! source-url
+                                                   ;; video loop
+                                                   (-> images
+                                                       :looping
+                                                       :mp4)))
+                                                   ;; gif loop
+                                                   ;(-> images
+                                                   ;    :original
+                                                   ;    :url)))
                       :response-format :json
                       :keywords?       true})))
 
@@ -50,17 +57,17 @@
            (fn [_ _ _ t]
                (case t
 
-                     10 (refresh! "dolphin" 2)
+                     10 (refresh! "dolphin" (random-int 1 30))
 
-                     20 (refresh! "robot+fail" 2)
+                     20 (refresh! "robot+fail" (random-int 1 20))
 
-                     30 (refresh! "gold+magic")
+                     30 (refresh! "gold+magic" (random-int 1 30))
 
-                     40 (refresh! "harambe" 11)
+                     40 (refresh! "harambe" (random-int 1 12))
 
-                     50 (refresh! "robot+dance" 12)
+                     50 (refresh! "robot+dance" (random-int 1 30))
 
-                     60 (refresh! "robot+fail" 30)
+                     60 (refresh! "robot+fail" (random-int 1 30))
 
                      "default")))
 
@@ -73,14 +80,17 @@
 (defn gif-comp []
       [:div.row.gifComp
        [:div.col-lg-12
-        [:img {:src @source-url}]]])
+        [:video {:src @source-url
+                 :autoPlay true
+                 :loop true}]]])
 
 (defn audio-comp []
       [:div.row.audio-tag
        [:div.col-lg-12
         [:audio {:src      "media/needings.wav"
                  :id       "audio-el"
-                 :autoPlay false}]]])
+                 :autoPlay false
+                 :loop true}]]])
 
 (defn play-btn []
       [:button.btn.btn-danger
@@ -108,10 +118,9 @@
 (defn main-component []
       (let []
            (r/create-class
-             {:component-did-mount #(refresh! "robot+dance" 2)
+             {:component-did-mount #(refresh! "random+dance" (random-int 1 20))
               :component-will-unmount #(js/console.log "out")
               :reagent-render      (fn [] [:div.container
-
                                            [gif-comp]
                                            [audio-comp]
                                            [text-comp count-up play-btn pause-btn]])})))
