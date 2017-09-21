@@ -9,7 +9,7 @@
 
 (def source-url (r/atom ""))
 
-(def tag (r/atom "THE FUTURE"))
+(def tag (r/atom "WORLD OF TOMORROW"))
 
 (def playing (r/atom true))
 
