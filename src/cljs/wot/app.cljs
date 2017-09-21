@@ -1,5 +1,6 @@
 (ns wot.app
   (:require [reagent.core :as r]
+            [cljsjs.moment]
             [ajax.core :refer [GET]]))
 
 (enable-console-print!)
@@ -8,9 +9,9 @@
 
 (def source-url (r/atom ""))
 
-(def tag (r/atom ":)(:"))
+(def tag (r/atom "THE FUTURE"))
 
-(def playing (r/atom false))
+(def playing (r/atom true))
 
 (defn random-int [min max]
       (.floor js/Math (+ min (* (- max min) (.random js/Math)))))
@@ -26,6 +27,7 @@
            []
            (GET "http://api.giphy.com/v1/gifs/random"
                 {:params          {:api_key "dc6zaTOxFJmzC"
+                                   :rating  "pg"
                                    :offset  (random-int 1 100)
                                    :tag     "robot+fail"}
                  :handler         #(reset! source-url
@@ -34,14 +36,14 @@
                  :keywords?       true}))
 
 (defmethod refresh! :params
-           [q & [offset txt]]
-           (let [off (random-int 1 12)]
-                (when txt (reset! tag txt))
+           [q & [txt]]
+           (let [offset (random-int 1 300)]
                 (GET "http://api.giphy.com/v1/gifs/search"
                      {:params          {:q       q
+                                        :rating  "pg"
                                         :api_key "dc6zaTOxFJmzC"
                                         :limit   1
-                                        :offset  (or offset 0)}
+                                        :offset  offset}
                       :handler         (fn [{[{images :images}] :data}]
                                            (reset! source-url
                                                    ;; video loop
@@ -58,27 +60,19 @@
 
 (add-watch duration :duration-watcher
            (fn [_ _ _ t]
-               (case t
-
-                     10 (refresh! "future" (random-int 1 300))
-
-                     20 (refresh! "robot+fail" (random-int 1 20))
-
-                     30 (refresh! "future+random" (random-int 1 300))
-
-                     40 (refresh! "random+future" (random-int 1 100))
-
-                     50 (refresh! "robot+dance" (random-int 1 300))
-
-                     60 (refresh! "future+fail" (random-int 1 300))
-
-                     70 (refresh! "computer+future" (random-int 1 300))
-
-                     80 (refresh! "car+future" (random-int 1 300))
-
-                     90 (refresh! "ai+future" (random-int 1 300))
-
-                     "default")))
+               (when @playing
+                 (case (mod t 60)
+                       6 (refresh! "future")
+                       12 (refresh! "robot+fail")
+                       18 (refresh! "future+random")
+                       24 (refresh! "future+world")
+                       30 (refresh! "vr")
+                       36 (refresh! "robot+dance")
+                       42 (refresh! "future+fail")
+                       48 (refresh! "computer+future")
+                       54 (refresh! "blade+runner")
+                       60 (refresh! "ai")
+                       "default"))))
 
 
 (defn count-up []
@@ -89,65 +83,56 @@
 
 (defn play-media [play?]
       (if play?
-        (do
-          (.play (js/document.querySelector "#audio-el"))
-          (.play (js/document.querySelector "#video-el")))
-        (do
-          (.pause (js/document.querySelector "#audio-el"))
-          (.pause (js/document.querySelector "#video-el")))))
+        (.play (js/document.querySelector "#video-el"))
+        (.pause (js/document.querySelector "#video-el"))))
 
 
 (defn gif-comp []
-      [:div.row.gifComp
+      [:div.giphy-composition
        [:div.col-lg-12
         [:video {:id       "video-el"
                  :src      @source-url
                  :autoPlay true
                  :loop     true}]]])
 
-(defn audio-comp []
-      [:div.row.audio-tag
-       [:div.col-lg-12
-        [:audio {:src      "media/needings.wav"
-                 :id       "audio-el"
-                 :autoPlay false
-                 :loop     true}]]])
 
-(defn play-btn []
+(defn skip-btn []
       [:button.btn.btn-danger
-       {:on-click #(when-not @playing
-                             (swap! playing not)
-                             (play-media true)
-                             (set! js/window.intervalFn
-                                   (js/setInterval (fn [] swap! duration inc) 1000)))}
+       {:on-click #(refresh! "the+future" (random-int 1 300))}
+       [:i.fa.fa-step-forward]])
 
-       "play"])
-
-(defn pause-btn []
+(defn play-pause-btn []
       [:button.btn.btn-danger
-       {:on-click #(do
-                     (swap! playing not)
-                     (play-media false))}
-       "pause"])
+       {:on-click (fn []
+                      (swap! playing not)
+                      (play-media @playing))}
+       [:i {:class (if @playing "fa fa-pause" "fa fa-play")}]])
 
-(defn text-comp [c b d]
+
+(defn text-comp [c d]
       [:div.row.text-comp
-       [:div.col-lg-12.jumbotron
+       [:div.jumbotron
         [:p.text-center.voices
-         [:strike [:em @tag]]]
+         [:strike [:span.tag @tag]]]
         [c {:class "align-right"}]
         [:p.pull-right
-         [b]
+         [play-pause-btn]
          [d]]]])
 
 (defn main-component []
       (r/create-class
-        {:component-did-mount    #(refresh! "future" (random-int 1 300))
+        {:component-did-mount (fn []
+                                  (set! js/window.intervalFn
+                                        (js/setInterval
+                                          #(when @playing (swap! duration inc)) 1000))
+                                  (refresh! "future" (random-int 1 300)))
          :component-will-unmount #(js/clearInterval js/window.intervalFn)
-         :reagent-render         (fn [] [:div.container
-                                         [gif-comp]
-                                         [audio-comp]
-                                         [text-comp count-up play-btn pause-btn]])}))
+         :reagent-render      (fn [] [:div.container
+                                      [gif-comp]
+                                      [text-comp count-up skip-btn]
+                                      [:div.footer
+                                       [:p [:mark "audio: \"trends\" by isaac asimov (from july 1939 issue of astounding science fiction)"]]
+                                       [:p [:mark "visuals: the future according to GIPHY hashtags"]]]])}))
 
 
 (defn init []

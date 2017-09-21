@@ -11,8 +11,4 @@
 
 ## Building Static Assets for Deployment:
 
-- boot production build target
-
-## Testing:
-
-- boot test
+`boot production build target`
