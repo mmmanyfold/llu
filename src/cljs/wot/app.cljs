@@ -9,7 +9,7 @@
 
 (def source-url (r/atom ""))
 
-(def tag (r/atom "Hinkley music video experiment"))
+(def tag (r/atom "WORLD OF TOMORROW"))
 
 (def playing (r/atom true))
 
@@ -62,16 +62,18 @@
            (fn [_ _ _ t]
                (when @playing
                  (case (mod t 60)
-                       6 (refresh! "future")
-                       12 (refresh! "robot+fail")
-                       18 (refresh! "future+random")
-                       24 (refresh! "future+world")
-                       30 (refresh! "vr")
-                       36 (refresh! "robot+dance")
-                       42 (refresh! "future+fail")
-                       48 (refresh! "computer+future")
-                       54 (refresh! "blade+runner")
-                       60 (refresh! "ai")
+                       5 (refresh! "future")
+                       10 (refresh! "robot+fail")
+                       15 (refresh! "future+random")
+                       20 (refresh! "future+world")
+                       25 (refresh! "vr")
+                       30 (refresh! "robot+dance")
+                       35 (refresh! "future+fail")
+                       40 (refresh! "computer+future")
+                       45 (refresh! "blade+runner")
+                       50 (refresh! "ai")
+                       55 (refresh! "future+world")
+                       60 (refresh! "robot+fail")
                        "default"))))
 
 
@@ -83,9 +85,12 @@
 
 (defn play-media [play?]
       (if play?
-        (.play (js/document.querySelector "#video-el"))
-        (.pause (js/document.querySelector "#video-el"))))
-
+        (do
+          (.play (js/document.querySelector "#video-el"))
+          (.play (.querySelector js/document "#audio-el")))
+        (do
+          (.pause (js/document.querySelector "#video-el"))
+          (.pause (.querySelector js/document "#audio-el")))))
 
 (defn gif-comp []
       [:div.giphy-composition
@@ -113,6 +118,7 @@
       [:div.row.text-comp
        [:div.jumbotron
         [:p.text-center.voices
+        ;  [:span.tag "Hinkley music video experiment"]
          [:span.tag @tag]]
         [c {:class "align-right"}]
         [:p.pull-right
@@ -128,9 +134,13 @@
                                   (refresh! "future" (random-int 1 300)))
          :component-will-unmount #(js/clearInterval js/window.intervalFn)
          :reagent-render      (fn [] [:div.container
+                                      [:audio {:src      "media/song.mp3"
+                                               :id       "audio-el"
+                                               :autoPlay true}]
                                       [gif-comp]
                                       [text-comp count-up skip-btn]
                                       [:div.footer
+                                       [:p [:mark "audio: jumpball by sporting life"]]
                                        [:p [:mark "visuals: the future according to GIPHY hashtags"]]]])}))
 
 
