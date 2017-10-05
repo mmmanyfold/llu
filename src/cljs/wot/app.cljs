@@ -9,7 +9,7 @@
 
 (def source-url (r/atom ""))
 
-(def tag (r/atom "WORLD OF TOMORROW"))
+(def tag (r/atom "Hinkley music video experiment"))
 
 (def playing (r/atom true))
 
@@ -113,7 +113,7 @@
       [:div.row.text-comp
        [:div.jumbotron
         [:p.text-center.voices
-         [:strike [:span.tag @tag]]]
+         [:span.tag @tag]]
         [c {:class "align-right"}]
         [:p.pull-right
          [play-pause-btn]
@@ -131,7 +131,6 @@
                                       [gif-comp]
                                       [text-comp count-up skip-btn]
                                       [:div.footer
-                                       [:p [:mark "audio: \"trends\" by isaac asimov (from july 1939 issue of astounding science fiction)"]]
                                        [:p [:mark "visuals: the future according to GIPHY hashtags"]]]])}))
 
 
