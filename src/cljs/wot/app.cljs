@@ -9,7 +9,7 @@
 
 (def source-url (r/atom ""))
 
-(def tag (r/atom "WORLD OF TOMORROW"))
+(def tag (r/atom "GSTEM Music Video Experiment"))
 
 (def playing (r/atom true))
 
@@ -62,16 +62,16 @@
            (fn [_ _ _ t]
                (when @playing
                  (case (mod t 60)
-                       6 (refresh! "future")
-                       12 (refresh! "robot+fail")
-                       18 (refresh! "future+random")
-                       24 (refresh! "future+world")
-                       30 (refresh! "vr")
-                       36 (refresh! "robot+dance")
-                       42 (refresh! "future+fail")
-                       48 (refresh! "computer+future")
-                       54 (refresh! "blade+runner")
-                       60 (refresh! "ai")
+                       6 (refresh! "leopard+geckos")
+                       12 (refresh! "banana+slug")
+                       18 (refresh! "pet+rats")
+                       24 (refresh! "snow")
+                       30 (refresh! "peanut+butter")
+                       36 (refresh! "harry+potter")
+                       42 (refresh! "winnie+the+pooh")
+                       48 (refresh! "gymnastics")
+                       54 (refresh! "dog+fails")
+                       60 (refresh! "bears")
                        "default"))))
 
 
@@ -83,8 +83,12 @@
 
 (defn play-media [play?]
       (if play?
-        (.play (js/document.querySelector "#video-el"))
-        (.pause (js/document.querySelector "#video-el"))))
+        (do
+          (.play (js/document.querySelector "#video-el"))
+          (.play (js/document.querySelector "#audio-el")))
+        (do
+          (.pause (js/document.querySelector "#video-el"))
+          (.pause (js/document.querySelector "#audio-el")))))
 
 
 (defn gif-comp []
@@ -95,10 +99,17 @@
                  :autoPlay true
                  :loop     true}]]])
 
+(defn audio-comp []
+      [:div.row.audio-tag
+       [:div.col-lg-12
+        [:audio {:src      "media/lush-life.mp3"
+                 :id       "audio-el"
+                 :autoPlay true}]]])
+
 
 (defn skip-btn []
       [:button.btn.btn-danger
-       {:on-click #(refresh! "the+future" (random-int 1 300))}
+       {:on-click #(refresh! "cats" (random-int 1 300))}
        [:i.fa.fa-step-forward]])
 
 (defn play-pause-btn []
@@ -113,7 +124,7 @@
       [:div.row.text-comp
        [:div.jumbotron
         [:p.text-center.voices
-         [:strike [:span.tag @tag]]]
+         [:span.tag @tag]]
         [c {:class "align-right"}]
         [:p.pull-right
          [play-pause-btn]
@@ -130,9 +141,7 @@
          :reagent-render      (fn [] [:div.container
                                       [gif-comp]
                                       [text-comp count-up skip-btn]
-                                      [:div.footer
-                                       [:p [:mark "audio: \"trends\" by isaac asimov (from july 1939 issue of astounding science fiction)"]]
-                                       [:p [:mark "visuals: the future according to GIPHY hashtags"]]]])}))
+                                      [audio-comp]])}))
 
 
 (defn init []
