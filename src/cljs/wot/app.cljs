@@ -9,7 +9,7 @@
 
 (def source-url (r/atom ""))
 
-(def tag (r/atom "GSTEM Music Video Experiment"))
+(def tag (r/atom "North HS Music Video Experiment"))
 
 (def playing (r/atom true))
 
@@ -29,7 +29,7 @@
                 {:params          {:api_key "dc6zaTOxFJmzC"
                                    :rating  "pg"
                                    :offset  (random-int 1 100)
-                                   :tag     "robot+fail"}
+                                   :tag     "north"}
                  :handler         #(reset! source-url
                                            (:image_original_url (:data %)))
                  :response-format :json
@@ -37,7 +37,7 @@
 
 (defmethod refresh! :params
            [q & [txt]]
-           (let [offset (random-int 1 300)]
+           (let [offset (random-int 1 100)]
                 (GET "http://api.giphy.com/v1/gifs/search"
                      {:params          {:q       q
                                         :rating  "pg"
@@ -61,17 +61,18 @@
 (add-watch duration :duration-watcher
            (fn [_ _ _ t]
                (when @playing
-                 (case (mod t 60)
+                 (case (mod t 66)
+                       0 (refresh! "north")
                        6 (refresh! "leopard+geckos")
                        12 (refresh! "banana+slug")
-                       18 (refresh! "pet+rats")
-                       24 (refresh! "snow")
-                       30 (refresh! "peanut+butter")
-                       36 (refresh! "harry+potter")
-                       42 (refresh! "winnie+the+pooh")
-                       48 (refresh! "gymnastics")
-                       54 (refresh! "dog+fails")
-                       60 (refresh! "bears")
+                       18 (refresh! "future")
+                       24 (refresh! "robot+dance")
+                       30 (refresh! "sunshine")
+                       36 (refresh! "ocean")
+                       42 (refresh! "flowers")
+                       48 (refresh! "surprise")
+                       54 (refresh! "robot+fail")
+                       60 (refresh! "virtual+reality")
                        "default"))))
 
 
@@ -136,7 +137,7 @@
                                   (set! js/window.intervalFn
                                         (js/setInterval
                                           #(when @playing (swap! duration inc)) 1000))
-                                  (refresh! "future" (random-int 1 300)))
+                                  (refresh! "north" (random-int 1 300)))
          :component-will-unmount #(js/clearInterval js/window.intervalFn)
          :reagent-render      (fn [] [:div.container
                                       [gif-comp]
